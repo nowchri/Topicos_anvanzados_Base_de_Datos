@@ -1,1 +1,6 @@
+Integrante: 
 
+	- Cristian Camilo Santiago Sanchez
+	- Juan Fernando Ordoñez Martinez
+
+Topicos Avanzados de Base de datos (Nocturna)
