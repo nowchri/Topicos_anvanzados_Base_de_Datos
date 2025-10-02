@@ -1,1 +1,215 @@
 
+"""""""""""""""""""""""""""""""""""""
+####################################"
+CRISTIAN CAMILO SANTIAGO SANCHEZ ###"
+####################################"
+"""""""""""""""""""""""""""""""""""""
+
+
+/////////////////////////////
+PARA CREAR LA BASE DE DATOS /
+////////////////////////////
+
+
+use universidad_matriculas;
+
+// -----------------------------
+// 1. PARA CREAR LAS COLECCIONES 
+// -----------------------------
+db.createCollection("facultades");
+db.createCollection("carreras");
+db.createCollection("estudiantes");
+db.createCollection("profesores");
+db.createCollection("salones");
+db.createCollection("cursos");
+db.createCollection("matriculas");
+
+// -----------------------------
+// 2. PARA INSERTAR DATOS 
+// -----------------------------
+
+////////////// Facultades//////////////
+
+var facIng = db.facultades.insertOne({ nombre: "Facultad de Ingeniería" }).insertedId;
+var facEco = db.facultades.insertOne({ nombre: "Facultad de Ciencias Económicas" }).insertedId;
+
+///////////// Carreras ///////////////
+
+var carrIngSist = db.carreras.insertOne({
+  nombre: "Ingeniería de Sistemas",
+  facultad_id: facIng,
+  numero_estudiantes_permitidos: 120,
+  valor_matricula: 3500000.0
+}).insertedId;
+
+var carrAdmin = db.carreras.insertOne({
+  nombre: "Administración de Empresas",
+  facultad_id: facEco,
+  numero_estudiantes_permitidos: 150,
+  valor_matricula: 2800000.0
+}).insertedId;
+
+///////////////// Estudiantes///////////////
+
+var est1 = db.estudiantes.insertOne({
+  nombres: "Carlos",
+  apellidos: "Pérez",
+  codigo: "E01",
+  direccion: "Calle 1",
+  celular: "3001111111",
+  correo: "carlos@universidad.edu.co"
+}).insertedId;
+
+var est2 = db.estudiantes.insertOne({
+  nombres: "María",
+  apellidos: "López",
+  codigo: "E02",
+  direccion: "Calle 2",
+  celular: "3002222222",
+  correo: "maria@universidad.edu.co"
+}).insertedId;
+
+var est3 = db.estudiantes.insertOne({
+  nombres: "Juan",
+  apellidos: "Gómez",
+  codigo: "E03",
+  direccion: "Calle 3",
+  celular: "3103333333",
+  correo: "juan@gmail.com"
+}).insertedId;
+
+///////////////// Profesores///////////////
+
+var prof1 = db.profesores.insertOne({
+  identificacion: "P1",
+  nombres_completos: "Ana García",
+  direccion: "Dir 1",
+  correo: "ana.garcia@universidad.edu.co",
+  celular: "3201111111"
+}).insertedId;
+
+var prof2 = db.profesores.insertOne({
+  identificacion: "P2",
+  nombres_completos: "Luis Martínez",
+  direccion: "Dir 2",
+  correo: "luis.martinez@universidad.edu.co",
+  celular: "3202222222"
+}).insertedId;
+
+/////////////////Salones ///////////////
+
+
+var salonA = db.salones.insertOne({
+  nombre: "Aula A",
+  ubicacion: "Edif 1"
+}).insertedId;
+
+var salonB = db.salones.insertOne({
+  nombre: "Laboratorio BD",
+  ubicacion: "Edif C"
+}).insertedId;
+
+///////////////// Cursos ///////////////
+
+var cursoBD = db.cursos.insertOne({
+  nombre: "Bases de Datos",
+  max_estudiantes: 5,
+  semestre: "2024-1",
+  carrera_id: carrIngSist,
+  profesor_id: prof1,
+  salon_id: salonB,
+  horario: { dia: "Lunes", hora: "10:00-12:00" }
+}).insertedId;
+
+var cursoProg = db.cursos.insertOne({
+  nombre: "Programación I",
+  max_estudiantes: 5,
+  semestre: "2024-1",
+  carrera_id: carrIngSist,
+  profesor_id: prof2,
+  salon_id: salonA,
+  horario: { dia: "Miércoles", hora: "14:00-16:00" }
+}).insertedId;
+
+db.cursos.insertOne({
+  nombre: "Cálculo Integral",
+  max_estudiantes: 30,
+  semestre: "2024-1",
+  carrera_id: carrIngSist,
+  profesor_id: prof1,
+  salon_id: salonA,
+  horario: { dia: "Viernes", hora: "08:00-10:00" }
+});
+
+///////////////// Matrículas ///////////////
+db.matriculas.insertMany([
+  // Bases de Datos → 5 matrículas → cupo lleno
+  { estudiante_id: est1, curso_id: cursoBD, carrera_id: carrIngSist, semestre: "2024-1" },
+  { estudiante_id: est2, curso_id: cursoBD, carrera_id: carrIngSist, semestre: "2024-1" },
+  { estudiante_id: est3, curso_id: cursoBD, carrera_id: carrIngSist, semestre: "2024-1" },
+  { estudiante_id: est1, curso_id: cursoBD, carrera_id: carrIngSist, semestre: "2024-1" }, // repetido para llenar
+  { estudiante_id: est2, curso_id: cursoBD, carrera_id: carrIngSist, semestre: "2024-1" }, // repetido para llenar
+
+  // Programación I → 3 matrículas → no lleno
+  { estudiante_id: est1, curso_id: cursoProg, carrera_id: carrIngSist, semestre: "2024-1" },
+  { estudiante_id: est2, curso_id: cursoProg, carrera_id: carrIngSist, semestre: "2024-1" },
+  { estudiante_id: est3, curso_id: cursoProg, carrera_id: carrIngSist, semestre: "2024-1" }
+]);
+
+
+
+
+////////// Consultas/////////////
+•	Cursos con profesor asignado y cupo mayor a 20  
+
+db.cursos.find({ max_estudiantes: { $gt: 20 } });
+
+•	Estudiantes cuyo celular comience por "300"  
+
+db.estudiantes.find({ celular: /^300/ });
+
+•	Profesores con correo institucional  
+
+db.profesores.find({ correo: /@universidad\.edu\.co$/ });
+
+•	Cursos en los que se imparta "Bases de Datos"  
+
+db.cursos.find({ nombre: "Bases de Datos" });
+
+•	Buscar carreras con matrícula mayor a $3.000.000  
+
+db.carreras.find({ valor_matricula: { $gt: 3000000 } });
+
+•	Mostrar estudiantes ordenados alfabéticamente por apellido  
+
+db.estudiantes.find().sort({ apellidos: 1 });
+
+•	Listar cursos con cupo lleno  
+
+// Contar matrículas por curso
+var conteos = db.matriculas.aggregate([
+  { $group: { _id: "$curso_id", total: { $sum: 1 } } }
+]).toArray();
+
+// Mostrar cursos donde total == max_estudiantes
+conteos.forEach(function(doc) {
+  var curso = db.cursos.findOne({ _id: doc._id });
+  if (curso && curso.max_estudiantes === doc.total) {
+    print(` ${curso.nombre} - Cupo lleno (${doc.total}/${curso.max_estudiantes})`);
+  }
+});
+
+•	Consultar matrículas de un estudiante específico 
+
+var estId = db.estudiantes.findOne({ codigo: "E01" })._id;
+db.matriculas.find({ estudiante_id: estId });
+ 
+•	Contar estudiantes inscritos en Ingeniería de Sistemas  
+
+db.matriculas.countDocuments({ carrera_id: carrIngSist });
+
+•	Agrupar matrículas por carrera y contar estudiantes  
+
+db.matriculas.aggregate([
+  { $group: { _id: "$carrera_id", totalEstudiantes: { $sum: 1 } } }
+]);
